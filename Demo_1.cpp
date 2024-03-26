@@ -5,9 +5,24 @@
 
 void randomizeArray(vector<int>& arr) {
     for (int i = 0; i < arr.size(); i++) {
-        arr[i] = rand() % 50000 + 1;
+        arr[i+1] = rand() % 50000 + 1;
     }
+}
 
+void InsertionSort(vector<int>& arr) {
+    for (int i = 1; i < arr.size(); i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+void Quicksort(vector<int>& arr, int low, int high) {
+    
 }
 
 using namespace std;
@@ -27,6 +42,6 @@ int main() {
         return 0;
     }
 
-    vector<int> arr(capacity);
+    vector<int> arr(capacity + 1);
     randomizeArray(arr);
 }
