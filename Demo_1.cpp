@@ -99,10 +99,10 @@ int main() {
     auto start2 = chrono::high_resolution_clock::now();
     InsertionSort(arr, n);
 
-    // cout << "Insertion sort: ";
-    // for (int i = 0; i < n; i++) 
-    //      cout << arr[i] << " ";
-    // cout << endl;
+    // // cout << "Insertion sort: ";
+    // // for (int i = 0; i < n; i++) 
+    // //      cout << arr[i] << " ";
+    // // cout << endl;
 
     auto end2 = chrono::high_resolution_clock::now();
     cout<< "Insertion sort Time taken: " << chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count() << "ns" << endl;
