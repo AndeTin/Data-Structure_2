@@ -60,13 +60,6 @@ void HeapSort(int* arr, int n) {
     }
 }
 
-void randomizeArray(int& arr, int capacity) {
-    for (int i = 0; i < capacity; i++) {
-        srand(time(NULL));
-        arr = rand() % 50000 + 1;
-    }
-}
-
 void randomizeArray(int* arr, int capacity) {
     srand(time(NULL));
     for (int i = 0; i < capacity; i++) {
