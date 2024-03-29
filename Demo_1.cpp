@@ -77,6 +77,11 @@ int main() {
     randomizeArray(arr, n); 
     copy(arr, arr + n, question);
 
+    // cout << "Unsorted array: ";
+    // for (int i = 0; i < n; i++)
+    //     cout << arr[i] << " ";
+    
+
     auto start1 = chrono::high_resolution_clock::now();
     QuickSort(arr, 0, n - 1);
 
@@ -92,10 +97,10 @@ int main() {
     auto start2 = chrono::high_resolution_clock::now();
     InsertionSort(arr, n);
 
-    // // cout << "Insertion sort: ";
-    // // for (int i = 0; i < n; i++) 
-    // //      cout << arr[i] << " ";
-    // // cout << endl;
+    // cout << "Insertion sort: ";
+    // for (int i = 0; i < n; i++) 
+    //      cout << arr[i] << " ";
+    // cout << endl;
 
     auto end2 = chrono::high_resolution_clock::now();
     cout<< "Insertion sort Time taken: " << chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count() << "ns" << endl;
