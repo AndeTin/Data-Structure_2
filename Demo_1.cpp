@@ -119,5 +119,6 @@ int main() {
     copy(question, question + n, arr);
 
     delete[] arr;
+    delete[] question;
     return 0;
 }
