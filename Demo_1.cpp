@@ -85,10 +85,10 @@ int main() {
     auto start1 = chrono::high_resolution_clock::now();
     QuickSort(arr, 0, n - 1);
 
-    // cout << "Quick sort: ";
-    // for (int i = 0; i < n; i++) 
-    //     cout << arr[i] << " ";
-    // cout << endl;
+    cout << "Quick sort: ";
+    for (int i = 0; i < n; i++) 
+        cout << arr[i] << " ";
+    cout << endl;
 
     auto end1 = chrono::high_resolution_clock::now();
     cout << "Quick sort Time taken: " << chrono::duration_cast<chrono::nanoseconds>(end1 - start1).count() << "ns" << endl;
@@ -118,7 +118,7 @@ int main() {
     cout << "Heap sort Time taken: " << chrono::duration_cast<chrono::nanoseconds>(end3 - start3).count() << "ns" << endl;
     copy(question, question + n, arr);
 
-    delete[] arr;
     delete[] question;
+    delete[] arr;
     return 0;
 }
