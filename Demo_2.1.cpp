@@ -2,7 +2,6 @@
 #include<random>
 #include<vector>
 #include<ctime>
-#include<stack>
 
 class Node {
     public:
@@ -29,6 +28,7 @@ class Node {
         int data_count [200] = {0};
         int add_index = 0;
         data *adj_list [200];
+        std::vector<data*> stack;
         Node() {
             std::cout << "Please enter the numbers of nodes and edges:\n";
             std::cin >> node_count >> edge_count;
@@ -144,24 +144,31 @@ class Node {
             std::cout << "---------------------Adjacent Matrix---------------------\n";
         }
         void DFS_visit(data *u) {
-            std::stack<data *> S;
+            if(u->vertex == 0) {
+                std::cout << "The graph is empty.\n";
+                return;
+            }
             u->color = 1;
             u->d = ++time;
-            while (u->vertex != 0 && u->next != 0) {
+            u->pi = 0;
+            stack.push_back(u);
+            while (u->next != 0) {
                 if (u->next->color == 0) {
-                    S.push(u);
-                    u = u->next;
-                    u->color = 1;
-                    u->d = ++time;
-                }
-                else {
-                    u = u->next;
+                    u->next->color = 1;
+                    u->next->d = ++time;
+                    u->next->pi = u;
+                    DFS_visit(u->next);
                 }
             }
             u->color = 2;
             u->f = ++time;
-            std::cout << S.top()->vertex << " ";
-            S.pop();
+            while (!stack.empty()) {
+                std::cout << stack.back()->vertex << " ";
+                stack.pop_back();
+                if (stack.empty()) {
+                    return;
+                }
+            }
         }
 };
 
