@@ -162,12 +162,9 @@ class Node {
             }
             u->color = 2;
             u->f = ++time;
-            while (!stack.empty()) {
+            for (int i = 0; i < time/2 + 1; i++) {
                 std::cout << stack.back()->vertex << " ";
                 stack.pop_back();
-                if (stack.empty()) {
-                    return;
-                }
             }
         }
 };
