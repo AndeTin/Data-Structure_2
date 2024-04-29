@@ -2,6 +2,7 @@
 #include<random>
 #include<vector>
 #include<ctime>
+#include<stack>
 
 class Node {
     public:
@@ -14,6 +15,8 @@ class Node {
                 int f;
                 data *pi;
                 data() {
+                    vertex = 0;
+                    next = 0;
                     color = 0;
                     d = 0;
                     f = 0;
@@ -71,7 +74,7 @@ class Node {
             while(data_link->vertex != 0) {
                 std::cout << "|" << data_link->vertex << "|";
                 if (data_link->next != 0) {
-                    std:: cout << " |-> ";
+                    std:: cout << " | -> ";
                     data_link = data_link->next;
                 }
                 else {
@@ -141,18 +144,24 @@ class Node {
             std::cout << "---------------------Adjacent Matrix---------------------\n";
         }
         void DFS_visit(data *u) {
+            std::stack<data *> S;
             u->color = 1;
             u->d = ++time;
-            while (u->next != 0) {
+            while (u->vertex != 0 && u->next != 0) {
                 if (u->next->color == 0) {
-                    u->next->pi = u;
-                    DFS_visit(u->next);
+                    S.push(u);
+                    u = u->next;
+                    u->color = 1;
+                    u->d = ++time;
                 }
-                u = u->next;
+                else {
+                    u = u->next;
+                }
             }
             u->color = 2;
-            std::cout << u->vertex << " ";
             u->f = ++time;
+            std::cout << S.top()->vertex << " ";
+            S.pop();
         }
 };
 
