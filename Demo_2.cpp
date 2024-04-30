@@ -244,6 +244,20 @@ class Node {
             file.close();
         }
 
+        void print_adjacency_tree(){
+            std::cout << "---------------------Adjacency Tree---------------------\n";
+            for (int i = 1; i <= node_count; i++) {
+                std::cout << "Node " << i << "\t| | ";
+                for (int j = 1; j <= node_count; j++) {
+                    if (pi[j] == i || pi[i] == j)  {
+                        std::cout << "-> |" << j << "| ";
+                    }
+                }
+                std::cout << "\n";
+            }
+            std::cout << "---------------------Adjacency Tree---------------------\n";
+        }
+
         ~Node() {
             for (int i = 1; i <= node_count; i++) {
                 data *data_link = adj_list[i];
@@ -277,11 +291,13 @@ int main() {
     graph.print_ADList();
     graph.DFS_visit(1);
     graph.print_DFS();
+    graph.print_adjacency_tree();
     graph.output_Tree("DFS_tree.csv");
     graph.initialize();
     std::cout << "BFS_visit: ";
     graph.BFS_visit(1);
     std::cout << "\n";
+    graph.print_adjacency_tree();
     graph.output_Tree("BFS_tree.csv");
     graph.write_adjacency_list_to_file();
     return 0;
