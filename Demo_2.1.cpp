@@ -120,7 +120,7 @@ class Node {
         void print_ADMatrix() {
             std::cout << "---------------------Adjacency Matrix---------------------\n";
             std::cout << "\t";
-            for (int i = 1; i <= 100; i++) {
+            for (int i = 1; i <= node_count; i++) {
                 if (i % 5 == 0) {
                     std::cout << i;
                     if (i < 10) {
@@ -180,6 +180,7 @@ class Node {
                     if (color[data_link->vertex] == 0) {
                         color[data_link->vertex] = 1;
                         d[data_link->vertex] = ++time;
+                        pi[data_link->vertex] = current_vertex;
                         counter.push_back(data_link->vertex);
                     }
                     data_link = data_link->next;
@@ -210,13 +211,13 @@ class Node {
             std::cout << "\n";
         }
 
-        void output_DFStree() {
-            std::ofstream file("DFS_tree.csv");
+        void output_Tree(const std::string &filename) {
+            std::ofstream file(filename);
             if (!file) {
-                std::cerr << "Failed to open DFStree file: " << std::endl;
+                std::cerr << "Failed to open file: " << filename <<std::endl;
                 return;
             }
-            for (int i = 1; i <= 200; i++) {
+            for (int i = 2; i <= node_count; i++) {
                 file << i << "," << pi[i] << "\n";
                 file.flush();
             }
@@ -229,7 +230,7 @@ class Node {
                 std::cerr << "Failed to open file: adjacency_list.csv" << std::endl;
                 return;
             }
-            for (int i = 1; i <= 200; i++) {
+            for (int i = 1; i <= node_count; i++) {
                 data* data_link = adj_list[i];
                 while (data_link->vertex != 0) {
                     file << i << "," << data_link->vertex << "\n";
@@ -276,10 +277,12 @@ int main() {
     graph.print_ADList();
     graph.DFS_visit(1);
     graph.print_DFS();
+    graph.output_Tree("DFS_tree.csv");
     graph.initialize();
     std::cout << "BFS_visit: ";
     graph.BFS_visit(1);
     std::cout << "\n";
+    graph.output_Tree("BFS_tree.csv");
     graph.write_adjacency_list_to_file();
     return 0;
 }
