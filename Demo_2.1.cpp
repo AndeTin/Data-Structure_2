@@ -9,31 +9,31 @@ class Node {
             public:
                 int vertex;
                 data *next;
-                int color;
-                int d;
-                int f;
-                data *pi;
                 data() {
                     vertex = 0;
                     next = 0;
-                    color = 0;
-                    d = 0;
-                    f = 0;
-                    pi = 0;
                 }
         };
+        int pi[200] ;
+        int d[200] ;
+        int f[200] ;
+        int color[200] ;
         int time = 0;
         int node_count;
         int edge_count;
         int data_count [200] = {0};
         int add_index = 0;
         data *adj_list [200];
-        std::vector<data*> stack;
+        std::vector<int> stack;
         Node() {
             std::cout << "Please enter the numbers of nodes and edges:\n";
             std::cin >> node_count >> edge_count;
             for (int i = 1; i <= node_count; i++) {
                 adj_list[i] = new data;
+                color[i] = 0;
+                pi[i] = 0;
+                d[i] = 0;
+                f[i] = 0;
             }
         }
 
@@ -143,30 +143,25 @@ class Node {
             }
             std::cout << "---------------------Adjacent Matrix---------------------\n";
         }
-        void DFS_visit(data *u) {
-            if(u->vertex == 0) {
-                std::cout << "The graph is empty.\n";
-                return;
-            }
-            u->color = 1;
-            u->d = ++time;
-            u->pi = 0;
-            stack.push_back(u);
-            while (u->next != 0) {
-                if (u->next->color == 0) {
-                    u->next->color = 1;
-                    u->next->d = ++time;
-                    u->next->pi = u;
-                    DFS_visit(u->next);
+        void DFS_visit(int vertex) {
+            color[vertex] = 1; // Mark vertex as discovered (gray)
+            d[vertex] = ++time; // Set discovery time
+            stack.push_back(vertex);
+            data *data_link = adj_list[vertex];
+            while (data_link != nullptr) {
+                if (color[data_link->vertex] == 0) {
+                    pi[data_link->vertex] = vertex; // Set parent of the next vertex
+                    DFS_visit(data_link->vertex);
                 }
+                data_link = data_link->next;
             }
-            u->color = 2;
-            u->f = ++time;
-            for (int i = 0; i < time/2 + 1; i++) {
-                std::cout << stack.back()->vertex << " ";
-                stack.pop_back();
-            }
+            color[vertex] = 2; // Mark vertex as finished (black)
+            f[vertex] = ++time; // Set finish time
+            std::cout << stack.back() << " ";
+            stack.pop_back();
         }
+
+        
 };
 
 
@@ -189,7 +184,7 @@ int main() {
     graph.print_ADMatrix();
     graph.print_ADList();
     std::cout << "DFS_visit: ";
-    graph.DFS_visit(graph.adj_list[1]);
+    graph.DFS_visit(1);
     std::cout << "\n";
     return 0;
 }
