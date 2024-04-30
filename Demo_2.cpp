@@ -300,5 +300,6 @@ int main() {
     graph.print_adjacency_tree();
     graph.output_Tree("BFS_tree.csv");
     graph.write_adjacency_list_to_file();
+    system("pause");
     return 0;
 }
