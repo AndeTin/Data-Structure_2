@@ -2,6 +2,7 @@
 #include<random>
 #include<vector>
 #include<ctime>
+#include<fstream>
 
 class Node {
     public:
@@ -27,8 +28,12 @@ class Node {
         std::vector<int> counter;
         std::vector<int> output;
         Node() {
-            std::cout << "Please enter the numbers of nodes and edges:\n";
+            std::cout << "Please enter the numbers of nodes and edges (nodes < 200):\n";
             std::cin >> node_count >> edge_count;
+            if (node_count > 200) {
+                std::cout << "The number of nodes is too large.\n";
+                return;
+            }
             for (int i = 1; i <= node_count; i++) {
                 adj_list[i] = new data;
                 color[i] = 0;
@@ -204,6 +209,30 @@ class Node {
             std::cout << "\n";
         }
 
+        void write_adjacency_list_to_file(const std::string& filename) {
+            std::ofstream file(filename);
+            if (!file) {
+                std::cerr << "Failed to open file: " << filename << std::endl;
+                return;
+            }
+            for (int i = 1; i <= 200; i++) {
+                data* data_link = adj_list[i];
+                while (data_link->vertex != 0) {
+                    std::cout << "i: " << i << ", vertex: " << data_link->vertex << ", next: " << data_link->next << std::endl;
+                    file << i << "," << data_link->vertex << "\n";
+                    file.flush();
+                    data_link = data_link->next;
+                    if (data_link == 0) {
+                        break;
+                    }
+                }
+            }
+            if (!file) {
+            std::cerr << "An error occurred while writing to the file" << std::endl;
+            }
+            file.close();
+        }
+
         ~Node() {
             for (int i = 1; i <= node_count; i++) {
                 data *data_link = adj_list[i];
@@ -241,5 +270,6 @@ int main() {
     std::cout << "BFS_visit: ";
     graph.BFS_visit(1);
     std::cout << "\n";
+    graph.write_adjacency_list_to_file("adjacency_list.csv");
     return 0;
 }
