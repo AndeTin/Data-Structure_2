@@ -27,6 +27,7 @@ class Node {
         data *adj_list [200];
         std::vector<int> counter;
         std::vector<int> output;
+
         Node() {
             std::cout << "Please enter the numbers of nodes and edges (nodes < 200):\n";
             std::cin >> node_count >> edge_count;
@@ -91,12 +92,12 @@ class Node {
         }
 
         void print_ADList() {
-            std::cout << "---------------------Adjacent List---------------------\n";
+            std::cout << "---------------------Adjacency List---------------------\n";
             for (int i = 1; i <= node_count; i++) {
                 std::cout << "Node " << i << "\t| | -> ";
                 print_ADL_data(adj_list[i]);
             }
-                std::cout << "---------------------Adjacent List---------------------\n";
+                std::cout << "---------------------Adjacency List---------------------\n";
         }
 
         bool check_redundancy(int node1, int node2) {
@@ -117,7 +118,7 @@ class Node {
             return false;
         }
         void print_ADMatrix() {
-            std::cout << "---------------------Adjacent Matrix---------------------\n";
+            std::cout << "---------------------Adjacency Matrix---------------------\n";
             std::cout << "\t";
             for (int i = 1; i <= 100; i++) {
                 if (i % 5 == 0) {
@@ -147,7 +148,7 @@ class Node {
                 }
                 std::cout << "\n";
             }
-            std::cout << "---------------------Adjacent Matrix---------------------\n";
+            std::cout << "---------------------Adjacency Matrix---------------------\n";
         }
         void DFS_visit(int vertex) {
             color[vertex] = 1;
@@ -209,16 +210,28 @@ class Node {
             std::cout << "\n";
         }
 
-        void write_adjacency_list_to_file(const std::string& filename) {
-            std::ofstream file(filename);
+        void output_DFStree() {
+            std::ofstream file("DFS_tree.csv");
             if (!file) {
-                std::cerr << "Failed to open file: " << filename << std::endl;
+                std::cerr << "Failed to open DFStree file: " << std::endl;
+                return;
+            }
+            for (int i = 1; i <= 200; i++) {
+                file << i << "," << pi[i] << "\n";
+                file.flush();
+            }
+            file.close();
+        }
+
+        void write_adjacency_list_to_file() {
+            std::ofstream file("adjacency_list.csv");
+            if (!file) {
+                std::cerr << "Failed to open file: adjacency_list.csv" << std::endl;
                 return;
             }
             for (int i = 1; i <= 200; i++) {
                 data* data_link = adj_list[i];
                 while (data_link->vertex != 0) {
-                    std::cout << "i: " << i << ", vertex: " << data_link->vertex << ", next: " << data_link->next << std::endl;
                     file << i << "," << data_link->vertex << "\n";
                     file.flush();
                     data_link = data_link->next;
@@ -226,9 +239,6 @@ class Node {
                         break;
                     }
                 }
-            }
-            if (!file) {
-            std::cerr << "An error occurred while writing to the file" << std::endl;
             }
             file.close();
         }
@@ -270,6 +280,6 @@ int main() {
     std::cout << "BFS_visit: ";
     graph.BFS_visit(1);
     std::cout << "\n";
-    graph.write_adjacency_list_to_file("adjacency_list.csv");
+    graph.write_adjacency_list_to_file();
     return 0;
 }
