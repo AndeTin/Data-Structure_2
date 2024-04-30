@@ -24,7 +24,8 @@ class Node {
         int data_count [200] = {0};
         int add_index = 0;
         data *adj_list [200];
-        std::vector<int> stack;
+        std::vector<int> counter;
+        std::vector<int> output;
         Node() {
             std::cout << "Please enter the numbers of nodes and edges:\n";
             std::cin >> node_count >> edge_count;
@@ -144,24 +145,75 @@ class Node {
             std::cout << "---------------------Adjacent Matrix---------------------\n";
         }
         void DFS_visit(int vertex) {
-            color[vertex] = 1; // Mark vertex as discovered (gray)
-            d[vertex] = ++time; // Set discovery time
-            stack.push_back(vertex);
+            color[vertex] = 1;
+            d[vertex] = ++time; 
+            counter.push_back(vertex);
             data *data_link = adj_list[vertex];
             while (data_link != nullptr) {
                 if (color[data_link->vertex] == 0) {
-                    pi[data_link->vertex] = vertex; // Set parent of the next vertex
+                    pi[data_link->vertex] = vertex; 
                     DFS_visit(data_link->vertex);
                 }
                 data_link = data_link->next;
             }
-            color[vertex] = 2; // Mark vertex as finished (black)
-            f[vertex] = ++time; // Set finish time
-            std::cout << stack.back() << " ";
-            stack.pop_back();
+            color[vertex] = 2;
+            f[vertex] = ++time; 
+            output.push_back(vertex);
+            counter.pop_back();
         }
 
+        void BFS_visit(int vertex) {
+            color[vertex] = 1;
+            d[vertex] = ++time;
+            counter.push_back(vertex);
+            while (!counter.empty()) {
+                int current_vertex = counter.front();
+                counter.erase(counter.begin());
+                data *data_link = adj_list[current_vertex];
+                for (int i = 0; i < data_count[current_vertex]; i++) {
+                    if (color[data_link->vertex] == 0) {
+                        color[data_link->vertex] = 1;
+                        d[data_link->vertex] = ++time;
+                        counter.push_back(data_link->vertex);
+                    }
+                    data_link = data_link->next;
+                }
+                color[current_vertex] = 2;
+                f[current_vertex] = ++time;
+                std::cout << current_vertex << " ";
+            }
+        }
+
+        void initialize() {
+            for (int i = 1; i <= node_count; i++) {
+                color[i] = 0;
+                pi[i] = 0;
+                d[i] = 0;
+                f[i] = 0;
+                time = 0;
+                counter.clear();
+                output.clear();
+            }
         
+        }
+        void print_DFS() {
+            std::cout << "DFS_visit: ";
+            for (unsigned int i = 0; i < output.size(); i++) {
+                std::cout << output[i] << " ";
+            }
+            std::cout << "\n";
+        }
+
+        ~Node() {
+            for (int i = 1; i <= node_count; i++) {
+                data *data_link = adj_list[i];
+                while (data_link != nullptr) {
+                    data *temp = data_link;
+                    data_link = data_link->next;
+                    delete temp;
+                }
+            }
+        }
 };
 
 
@@ -183,8 +235,11 @@ int main() {
     }
     graph.print_ADMatrix();
     graph.print_ADList();
-    std::cout << "DFS_visit: ";
     graph.DFS_visit(1);
+    graph.print_DFS();
+    graph.initialize();
+    std::cout << "BFS_visit: ";
+    graph.BFS_visit(1);
     std::cout << "\n";
     return 0;
 }
