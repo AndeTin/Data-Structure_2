@@ -122,70 +122,145 @@ void randomizeArray(int* arr, int capacity) {
 
 
 int main() {
-    ofstream csvFile("sorting_times.csv");
-    csvFile << "Number of Elements,QuickSort Time (ns),MergeSort Time (ns),HeapSort Time (ns),InsertionSort Time (ns)\n";
+    cout << "Choose mode:\n";
+    cout << "1. Benchmark Mode\n";
+    cout << "2. Manual Test Mode\n";
+    int mode;
+    cin >> mode;
 
-    const int minSize = 10;       // Starting size
-    const int maxSize = 100000;  // Maximum size
-    const int steps = 100;       // Number of data points
-    const int trials = 10;       // Number of trials for averaging
+    if (mode == 1) {
+        // Benchmark Mode
+        ofstream csvFile("sorting_times.csv");
+        csvFile << "Number of Elements,QuickSort Time (ns),MergeSort Time (ns),HeapSort Time (ns),InsertionSort Time (ns)\n";
 
-    for (int step = 0; step < steps; step++) {
-        int size = minSize + step * (maxSize - minSize) / (steps - 1); // Calculate size dynamically
-        int *arr = new int[size];
-        int *question = new int[size];
+        const int minSize = 10;       // Starting size
+        const int maxSize = 100000;  // Maximum size
+        const int steps = 100;       // Number of data points
+        const int trials = 10;       // Number of trials for averaging
 
-        long long totalQuickSortTime = 0;
-        long long totalMergeSortTime = 0;
-        long long totalHeapSortTime = 0;
-        long long totalInsertionSortTime = 0;
+        for (int step = 0; step < steps; step++) {
+            int size = minSize + step * (maxSize - minSize) / (steps - 1); // Calculate size dynamically
+            int *arr = new int[size];
+            int *question = new int[size];
 
-        for (int t = 0; t < trials; t++) {
-            randomizeArray(arr, size);
-            copy(arr, arr + size, question);
+            long long totalQuickSortTime = 0;
+            long long totalMergeSortTime = 0;
+            long long totalHeapSortTime = 0;
+            long long totalInsertionSortTime = 0;
 
-            // QuickSort
-            auto start1 = chrono::high_resolution_clock::now();
-            QuickSort(arr, 0, size - 1);
-            auto end1 = chrono::high_resolution_clock::now();
-            totalQuickSortTime += chrono::duration_cast<chrono::nanoseconds>(end1 - start1).count();
-            copy(question, question + size, arr);
+            for (int t = 0; t < trials; t++) {
+                randomizeArray(arr, size);
+                copy(arr, arr + size, question);
 
-            // MergeSort
-            auto start2 = chrono::high_resolution_clock::now();
-            MergeSort(arr, 0, size - 1);
-            auto end2 = chrono::high_resolution_clock::now();
-            totalMergeSortTime += chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count();
-            copy(question, question + size, arr);
+                // QuickSort
+                auto start1 = chrono::high_resolution_clock::now();
+                QuickSort(arr, 0, size - 1);
+                auto end1 = chrono::high_resolution_clock::now();
+                totalQuickSortTime += chrono::duration_cast<chrono::nanoseconds>(end1 - start1).count();
+                copy(question, question + size, arr);
 
-            // HeapSort
-            auto start3 = chrono::high_resolution_clock::now();
-            HeapSort(arr, size);
-            auto end3 = chrono::high_resolution_clock::now();
-            totalHeapSortTime += chrono::duration_cast<chrono::nanoseconds>(end3 - start3).count();
-            copy(question, question + size, arr);
+                // MergeSort
+                auto start2 = chrono::high_resolution_clock::now();
+                MergeSort(arr, 0, size - 1);
+                auto end2 = chrono::high_resolution_clock::now();
+                totalMergeSortTime += chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count();
+                copy(question, question + size, arr);
 
-            // InsertionSort
-            auto start4 = chrono::high_resolution_clock::now();
-            InsertionSort(arr, size);
-            auto end4 = chrono::high_resolution_clock::now();
-            totalInsertionSortTime += chrono::duration_cast<chrono::nanoseconds>(end4 - start4).count();
+                // HeapSort
+                auto start3 = chrono::high_resolution_clock::now();
+                HeapSort(arr, size);
+                auto end3 = chrono::high_resolution_clock::now();
+                totalHeapSortTime += chrono::duration_cast<chrono::nanoseconds>(end3 - start3).count();
+                copy(question, question + size, arr);
+
+                // InsertionSort
+                auto start4 = chrono::high_resolution_clock::now();
+                InsertionSort(arr, size);
+                auto end4 = chrono::high_resolution_clock::now();
+                totalInsertionSortTime += chrono::duration_cast<chrono::nanoseconds>(end4 - start4).count();
+            }
+
+            // Calculate averages
+            long long avgQuickSortTime = totalQuickSortTime / trials;
+            long long avgMergeSortTime = totalMergeSortTime / trials;
+            long long avgHeapSortTime = totalHeapSortTime / trials;
+            long long avgInsertionSortTime = totalInsertionSortTime / trials;
+
+            // Record results in CSV
+            csvFile << size << "," << avgQuickSortTime << "," << avgMergeSortTime << "," << avgHeapSortTime << "," << avgInsertionSortTime << "\n";
+
+            delete[] question;
+            delete[] arr;
         }
 
-        // Calculate averages
-        long long avgQuickSortTime = totalQuickSortTime / trials;
-        long long avgMergeSortTime = totalMergeSortTime / trials;
-        long long avgHeapSortTime = totalHeapSortTime / trials;
-        long long avgInsertionSortTime = totalInsertionSortTime / trials;
+        csvFile.close();
+        cout << "Sorting times recorded in sorting_times.csv" << endl;
 
-        // Record results in CSV
-        csvFile << size << "," << avgQuickSortTime << "," << avgMergeSortTime << "," << avgHeapSortTime << "," << avgInsertionSortTime << "\n";
+    } else if (mode == 2) {
+        // Manual Test Mode
+        cout << "Choose algorithm:\n";
+        cout << "1. QuickSort\n";
+        cout << "2. MergeSort\n";
+        cout << "3. HeapSort\n";
+        cout << "4. InsertionSort\n";
+        int algorithm;
+        cin >> algorithm;
 
-        delete[] question;
+        cout << "Enter the number of elements to sort (10 ~ 100000): ";
+        int size;
+        cin >> size;
+
+        if (size < 10 || size > 100000) {
+            cout << "Invalid size. Please enter a number between 10 and 100000.\n";
+            return 1;
+        }
+
+        int *arr = new int[size];
+        randomizeArray(arr, size);
+
+        cout << "Initial array:\n";
+        for (int i = 0; i < size; i++) {
+            cout << arr[i] << " ";
+        }
+        cout << "\n";
+
+        switch (algorithm) {
+            case 1: {
+                QuickSort(arr, 0, size - 1);
+                cout << "Sorted array using QuickSort:\n";
+                break;
+            }
+            case 2: {
+                MergeSort(arr, 0, size - 1);
+                cout << "Sorted array using MergeSort:\n";
+                break;
+            }
+            case 3: {
+                HeapSort(arr, size);
+                cout << "Sorted array using HeapSort:\n";
+                break;
+            }
+            case 4: {
+                InsertionSort(arr, size);
+                cout << "Sorted array using InsertionSort:\n";
+                break;
+            }
+            default:
+                cout << "Invalid algorithm choice.\n";
+                delete[] arr;
+                return 1;
+        }
+
+        for (int i = 0; i < size; i++) {
+            cout << arr[i] << " ";
+        }
+        cout << "\n";
+
         delete[] arr;
+
+    } else {
+        cout << "Invalid mode selected.\n";
     }
 
-    csvFile.close();
-    cout << "Sorting times recorded in sorting_times.csv" << endl;
     return 0;
 }
