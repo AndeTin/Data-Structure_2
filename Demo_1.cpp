@@ -1,3 +1,4 @@
+#include<fstream>
 #include<iostream>
 #include<chrono>
 #include<time.h>
@@ -38,25 +39,77 @@ void QuickSort(int* arr, const int left, const int right) {
     
 }
 
-void Heapify(int* arr, int n, int i) {
-    int largest = i;
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
-    if (left < n && arr[left] > arr[largest]) 
+void Heapify(int* arr, int n, int root) {
+    int left = 2 * root + 1;
+    int right = 2 * root + 2;
+    int largest = root;
+    if (left < n && arr[left] > arr[right] && arr[left] > arr[largest]) {
         largest = left;
-    if (right < n && arr[right] > arr[largest]) 
+    }
+    if (right < n && arr[right] > arr[left] && arr[right] > arr[largest]) {
         largest = right;
-    if (largest != i) {
-        swap(arr[i], arr[largest]);
+    }
+    if(largest != root) {
+        swap(arr[root], arr[largest]);
         Heapify(arr, n, largest);
     }
 }
+
 void HeapSort(int* arr, int n) {
     for (int i = n / 2 - 1; i >= 0; i--) 
         Heapify(arr, n, i);
     for (int i = n - 1; i > 0; i--) {
         swap(arr[0], arr[i]);
         Heapify(arr, i, 0);
+    }
+}
+
+void merge(int* arr, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    int* L = new int[n1];
+    int* R = new int[n2];
+
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    int i = 0, j = 0, k = left;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+
+    delete[] L;
+    delete[] R;
+}
+
+void MergeSort(int* arr, int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+        MergeSort(arr, left, mid);
+        MergeSort(arr, mid + 1, right);
+        merge(arr, left, mid, right);
     }
 }
 
@@ -67,58 +120,72 @@ void randomizeArray(int* arr, int capacity) {
     }
 }
 
+
 int main() {
-    cout << "Please enter the number of elements: ";
-    int n;
-    cin >> n;
-    int *arr = new int[n];
-    int *question = new int[n];
+    ofstream csvFile("sorting_times.csv");
+    csvFile << "Number of Elements,QuickSort Time (ns),MergeSort Time (ns),HeapSort Time (ns),InsertionSort Time (ns)\n";
 
-    randomizeArray(arr, n); 
-    copy(arr, arr + n, question);
+    const int minSize = 10;       // Starting size
+    const int maxSize = 100000;  // Maximum size
+    const int steps = 100;       // Number of data points
+    const int trials = 10;       // Number of trials for averaging
 
-    // cout << "Unsorted array: ";
-    // for (int i = 0; i < n; i++)
-    //     cout << arr[i] << " ";
-    
+    for (int step = 0; step < steps; step++) {
+        int size = minSize + step * (maxSize - minSize) / (steps - 1); // Calculate size dynamically
+        int *arr = new int[size];
+        int *question = new int[size];
 
-    auto start1 = chrono::high_resolution_clock::now();
-    QuickSort(arr, 0, n - 1);
+        long long totalQuickSortTime = 0;
+        long long totalMergeSortTime = 0;
+        long long totalHeapSortTime = 0;
+        long long totalInsertionSortTime = 0;
 
-    cout << "Quick sort: ";
-    for (int i = 0; i < n; i++) 
-        cout << arr[i] << " ";
-    cout << endl;
+        for (int t = 0; t < trials; t++) {
+            randomizeArray(arr, size);
+            copy(arr, arr + size, question);
 
-    auto end1 = chrono::high_resolution_clock::now();
-    cout << "Quick sort Time taken: " << chrono::duration_cast<chrono::nanoseconds>(end1 - start1).count() << "ns" << endl;
-    copy(question, question + n, arr);
+            // QuickSort
+            auto start1 = chrono::high_resolution_clock::now();
+            QuickSort(arr, 0, size - 1);
+            auto end1 = chrono::high_resolution_clock::now();
+            totalQuickSortTime += chrono::duration_cast<chrono::nanoseconds>(end1 - start1).count();
+            copy(question, question + size, arr);
 
-    auto start2 = chrono::high_resolution_clock::now();
-    InsertionSort(arr, n);
+            // MergeSort
+            auto start2 = chrono::high_resolution_clock::now();
+            MergeSort(arr, 0, size - 1);
+            auto end2 = chrono::high_resolution_clock::now();
+            totalMergeSortTime += chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count();
+            copy(question, question + size, arr);
 
-    // cout << "Insertion sort: ";
-    // for (int i = 0; i < n; i++) 
-    //      cout << arr[i] << " ";
-    // cout << endl;
+            // HeapSort
+            auto start3 = chrono::high_resolution_clock::now();
+            HeapSort(arr, size);
+            auto end3 = chrono::high_resolution_clock::now();
+            totalHeapSortTime += chrono::duration_cast<chrono::nanoseconds>(end3 - start3).count();
+            copy(question, question + size, arr);
 
-    auto end2 = chrono::high_resolution_clock::now();
-    cout<< "Insertion sort Time taken: " << chrono::duration_cast<chrono::nanoseconds>(end2 - start2).count() << "ns" << endl;
-    copy(question, question + n, arr);
+            // InsertionSort
+            auto start4 = chrono::high_resolution_clock::now();
+            InsertionSort(arr, size);
+            auto end4 = chrono::high_resolution_clock::now();
+            totalInsertionSortTime += chrono::duration_cast<chrono::nanoseconds>(end4 - start4).count();
+        }
 
-    auto start3 = chrono::high_resolution_clock::now();
-    HeapSort(arr, n);
+        // Calculate averages
+        long long avgQuickSortTime = totalQuickSortTime / trials;
+        long long avgMergeSortTime = totalMergeSortTime / trials;
+        long long avgHeapSortTime = totalHeapSortTime / trials;
+        long long avgInsertionSortTime = totalInsertionSortTime / trials;
 
-    // cout << "Heap sort: ";
-    // for (int i = 0; i < n; i++)
-    //     cout << arr[i] << " ";
-    // cout << endl;
-    
-    auto end3 = chrono::high_resolution_clock::now();
-    cout << "Heap sort Time taken: " << chrono::duration_cast<chrono::nanoseconds>(end3 - start3).count() << "ns" << endl;
-    copy(question, question + n, arr);
+        // Record results in CSV
+        csvFile << size << "," << avgQuickSortTime << "," << avgMergeSortTime << "," << avgHeapSortTime << "," << avgInsertionSortTime << "\n";
 
-    delete[] question;
-    delete[] arr;
+        delete[] question;
+        delete[] arr;
+    }
+
+    csvFile.close();
+    cout << "Sorting times recorded in sorting_times.csv" << endl;
     return 0;
 }
