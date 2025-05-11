@@ -27,6 +27,7 @@ class Node {
         data *adj_list [200];
         std::vector<int> counter;
         std::vector<int> output;
+        std::vector<int> traversal_order; // To store the order of traversal
 
         Node() {
             std::cout << "Please enter the numbers of nodes and edges (nodes < 200):\n";
@@ -36,7 +37,7 @@ class Node {
                 return;
             }
             for (int i = 1; i <= node_count; i++) {
-                adj_list[i] = new data;
+                adj_list[i] = nullptr; // Initialize as nullptr
                 color[i] = 0;
                 pi[i] = 0;
                 d[i] = 0;
@@ -45,50 +46,41 @@ class Node {
         }
 
         void add_edge(int node1, int node2) {
-            if (data_count[node1] == 0) {
-                adj_list[node1]->vertex = node2;
-                data_count[node1]++;
-                if (add_index == 1) {
-                add_index = 0;
-                return;
-                }
-                add_index = 1;
-                add_edge(node2, node1);
+            // Check if the edge already exists
+            if (check_redundancy(node1, node2)) {
+                return; // Do not add the edge if it already exists
             }
-            else {
-                data *data_link = adj_list[node1];
-                while (data_link->next != 0) {
-                    data_link = data_link->next;
-                }
-                data_link->next = new data;
-                data_link->next->vertex = node2;
-                data_count[node1]++;
-                if (add_index == 1) {
-                add_index = 0;
-                return;
-                }
-                add_index = 1;
-                add_edge(node2, node1);
-            }
-            data_count[0]++;
+
+            // Add the edge to the adjacency list
+            data* new_node = new data;
+            new_node->vertex = node2;
+            new_node->next = adj_list[node1];
+            adj_list[node1] = new_node;
+
+            // Add reverse edge for undirected graph
+            new_node = new data;
+            new_node->vertex = node1;
+            new_node->next = adj_list[node2];
+            adj_list[node2] = new_node;
+
+            // Increment the edge count for both nodes
+            data_count[node1]++;
+            data_count[node2]++;
         }
 
-        void print_ADL_data(data *data_link) {
-            if (data_link->vertex == 0) {
+        void print_ADL_data(data* data_link) {
+            if (data_link == nullptr) {
                 std::cout << "|0|0|\n";
                 return;
             }
-            while(data_link->vertex != 0) {
+            while (data_link != nullptr) {
                 std::cout << "|" << data_link->vertex << "|";
-                if (data_link->next != 0) {
-                    std:: cout << " | -> ";
-                    data_link = data_link->next;
+                if (data_link->next != nullptr) {
+                    std::cout << " | -> ";
                 }
-                else {
-                    std::cout << "0|\n";
-                    break;
-                }
+                data_link = data_link->next;
             }
+            std::cout << "0|\n";
         }
 
         void print_ADList() {
@@ -117,6 +109,7 @@ class Node {
             }
             return false;
         }
+
         void print_ADMatrix() {
             std::cout << "---------------------Adjacency Matrix---------------------\n";
             std::cout << "\t";
@@ -150,44 +143,58 @@ class Node {
             }
             std::cout << "---------------------Adjacency Matrix---------------------\n";
         }
+
         void DFS_visit(int vertex) {
             color[vertex] = 1;
-            d[vertex] = ++time; 
-            counter.push_back(vertex);
-            data *data_link = adj_list[vertex];
+            traversal_order.push_back(vertex); // Record the traversal order
+            d[vertex] = ++time;
+            data* data_link = adj_list[vertex];
             while (data_link != nullptr) {
                 if (color[data_link->vertex] == 0) {
-                    pi[data_link->vertex] = vertex; 
+                    pi[data_link->vertex] = vertex;
                     DFS_visit(data_link->vertex);
                 }
                 data_link = data_link->next;
             }
             color[vertex] = 2;
-            f[vertex] = ++time; 
-            output.push_back(vertex);
-            counter.pop_back();
+            f[vertex] = ++time;
+        }
+
+        void DFS() {
+            for (int i = 1; i <= node_count; i++) {
+            if (color[i] == 0) {
+                DFS_visit(i);
+            }
+            }
         }
 
         void BFS_visit(int vertex) {
             color[vertex] = 1;
-            d[vertex] = ++time;
             counter.push_back(vertex);
+            traversal_order.push_back(vertex); // Record the traversal order
             while (!counter.empty()) {
                 int current_vertex = counter.front();
                 counter.erase(counter.begin());
-                data *data_link = adj_list[current_vertex];
-                for (int i = 0; i < data_count[current_vertex]; i++) {
+                data* data_link = adj_list[current_vertex];
+                while (data_link != nullptr) {
                     if (color[data_link->vertex] == 0) {
                         color[data_link->vertex] = 1;
                         d[data_link->vertex] = ++time;
                         pi[data_link->vertex] = current_vertex;
                         counter.push_back(data_link->vertex);
+                        traversal_order.push_back(data_link->vertex); // Record the traversal order
                     }
                     data_link = data_link->next;
                 }
                 color[current_vertex] = 2;
-                f[current_vertex] = ++time;
-                std::cout << current_vertex << " ";
+            }
+        }
+
+        void BFS() {
+            for (int i = 1; i <= node_count; i++) {
+            if (color[i] == 0) {
+                BFS_visit(i);
+            }
             }
         }
 
@@ -197,30 +204,56 @@ class Node {
                 pi[i] = 0;
                 d[i] = 0;
                 f[i] = 0;
-                time = 0;
-                counter.clear();
-                output.clear();
             }
-        
+            time = 0;
+            counter.clear();
+            output.clear();
+            traversal_order.clear(); // Clear the traversal order
         }
+
         void print_DFS() {
-            std::cout << "DFS_visit: ";
-            for (unsigned int i = 0; i < output.size(); i++) {
-                std::cout << output[i] << " ";
+            std::cout << "DFS Tree Edges:\n";
+            for (int i = 1; i <= node_count; i++) {
+                if (pi[i] != 0) {
+                    std::cout << pi[i] << " -> " << i << "\n";
+                } else if (color[i] == 0) { // Handle isolated nodes
+                    std::cout << i << " is isolated.\n";
+                }
             }
-            std::cout << "\n";
+        }
+
+        void print_BFS() {
+            std::cout << "BFS Tree Edges:\n";
+            for (int i = 1; i <= node_count; i++) {
+                if (pi[i] != 0) {
+                    std::cout << pi[i] << " -> " << i << "\n";
+                } else if (color[i] == 0) { // Handle isolated nodes
+                    std::cout << i << " is isolated.\n";
+                }
+            }
         }
 
         void output_Tree(const std::string &filename) {
             std::ofstream file(filename);
             if (!file) {
-                std::cerr << "Failed to open file: " << filename <<std::endl;
+                std::cerr << "Failed to open file: " << filename << std::endl;
                 return;
             }
-            for (int i = 2; i <= node_count; i++) {
-                file << i << "," << pi[i] << "\n";
-                file.flush();
+
+            // Write parent-child relationships to the main file
+            for (int i = 1; i <= node_count; i++) {
+                if (pi[i] != 0) { // Include nodes with a valid parent
+                    file << i << "," << pi[i] << "\n";
+                }
             }
+
+            // Append isolated nodes to the same file
+            for (int i = 1; i <= node_count; i++) {
+                if (pi[i] == 0 && adj_list[i] == nullptr) { // Check for isolated nodes
+                    file << i << "," << i << "\n"; // Destination is the node itself
+                }
+            }
+
             file.close();
         }
 
@@ -244,18 +277,41 @@ class Node {
             file.close();
         }
 
-        void print_adjacency_tree(){
-            std::cout << "---------------------Adjacency Tree---------------------\n";
-            for (int i = 1; i <= node_count; i++) {
-                std::cout << "Node " << i << "\t| | ";
-                for (int j = 1; j <= node_count; j++) {
-                    if (pi[j] == i || pi[i] == j)  {
-                        std::cout << "-> |" << j << "| ";
-                    }
-                }
-                std::cout << "\n";
+        void print_traversal_order(const std::string& method) {
+            std::cout << method << " Traversal Order: ";
+            for (int node : traversal_order) {
+                std::cout << node << " ";
             }
-            std::cout << "---------------------Adjacency Tree---------------------\n";
+            std::cout << "\n";
+        }
+
+        void write_edges_to_file(const std::string &filename) {
+            std::ofstream file(filename);
+            if (!file) {
+                std::cerr << "Failed to open file: " << filename << std::endl;
+                return;
+            }
+
+            // Write all edges to the file
+            for (int i = 1; i <= node_count; i++) {
+                data* data_link = adj_list[i];
+                while (data_link != nullptr) {
+                    if (i < data_link->vertex) { // Avoid duplicate edges in an undirected graph
+                        file << i << "," << data_link->vertex << "\n";
+                    }
+                    data_link = data_link->next;
+                }
+            }
+
+            // Append isolated nodes to the file
+            for (int i = 1; i <= node_count; i++) {
+                if (adj_list[i] == nullptr) { // Check for isolated nodes
+                    file << i << "," << i << "\n"; // Destination is the node itself
+                }
+            }
+
+            file.close();
+            std::cout << "Edges and isolated nodes have been written to " << filename << "\n";
         }
 
         ~Node() {
@@ -278,28 +334,32 @@ int main() {
         return 0;
     }
     srand(time(0));
-    for(int i = 0; i < graph.edge_count; i++) {
-        int node1 = rand() % graph.node_count + 1;
-        int node2 = rand() % graph.node_count + 1;
-        while (node1 == node2 || graph.check_redundancy(node1, node2)) {
+    for (int i = 0; i < graph.edge_count; i++) {
+        int node1, node2;
+        do {
             node1 = rand() % graph.node_count + 1;
             node2 = rand() % graph.node_count + 1;
-        }
+        } while (node1 == node2 || graph.check_redundancy(node1, node2)); // Regenerate if duplicate or self-loop
         graph.add_edge(node1, node2);
     }
     graph.print_ADMatrix();
     graph.print_ADList();
-    graph.DFS_visit(1);
-    graph.print_DFS();
-    graph.print_adjacency_tree();
-    graph.output_Tree("DFS_tree.csv");
+
+    // Write all edges to a CSV file
+    graph.write_edges_to_file("edges.csv");
+
+    // Initialize before DFS
     graph.initialize();
-    std::cout << "BFS_visit: ";
-    graph.BFS_visit(1);
-    std::cout << "\n";
-    graph.print_adjacency_tree();
+    graph.DFS();
+    graph.print_traversal_order("DFS");
+    graph.output_Tree("DFS_tree.csv");
+
+    // Initialize before BFS
+    graph.initialize();
+    graph.BFS();
+    graph.print_traversal_order("BFS");
     graph.output_Tree("BFS_tree.csv");
-    graph.write_adjacency_list_to_file();
+
     system("pause");
     return 0;
 }
