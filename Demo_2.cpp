@@ -23,10 +23,8 @@ class Node {
         int node_count;
         int edge_count;
         int data_count [200] = {0};
-        int add_index = 0;
         data *adj_list [200];
         std::vector<int> counter;
-        std::vector<int> output;
         std::vector<int> traversal_order; // To store the order of traversal
 
         Node() {
@@ -207,31 +205,30 @@ class Node {
             }
             time = 0;
             counter.clear();
-            output.clear();
             traversal_order.clear(); // Clear the traversal order
         }
 
-        void print_DFS() {
-            std::cout << "DFS Tree Edges:\n";
-            for (int i = 1; i <= node_count; i++) {
-                if (pi[i] != 0) {
-                    std::cout << pi[i] << " -> " << i << "\n";
-                } else if (color[i] == 0) { // Handle isolated nodes
-                    std::cout << i << " is isolated.\n";
-                }
-            }
-        }
+        // void print_DFS() {
+        //     std::cout << "DFS Tree Edges:\n";
+        //     for (int i = 1; i <= node_count; i++) {
+        //         if (pi[i] != 0) {
+        //             std::cout << pi[i] << " -> " << i << "\n";
+        //         } else if (color[i] == 0) { // Handle isolated nodes
+        //             std::cout << i << " is isolated.\n";
+        //         }
+        //     }
+        // }
 
-        void print_BFS() {
-            std::cout << "BFS Tree Edges:\n";
-            for (int i = 1; i <= node_count; i++) {
-                if (pi[i] != 0) {
-                    std::cout << pi[i] << " -> " << i << "\n";
-                } else if (color[i] == 0) { // Handle isolated nodes
-                    std::cout << i << " is isolated.\n";
-                }
-            }
-        }
+        // void print_BFS() {
+        //     std::cout << "BFS Tree Edges:\n";
+        //     for (int i = 1; i <= node_count; i++) {
+        //         if (pi[i] != 0) {
+        //             std::cout << pi[i] << " -> " << i << "\n";
+        //         } else if (color[i] == 0) { // Handle isolated nodes
+        //             std::cout << i << " is isolated.\n";
+        //         }
+        //     }
+        // }
 
         void output_Tree(const std::string &filename) {
             std::ofstream file(filename);
@@ -257,32 +254,32 @@ class Node {
             file.close();
         }
 
-        void write_adjacency_list_to_file() {
-            std::ofstream file("adjacency_list.csv");
-            if (!file) {
-                std::cerr << "Failed to open file: adjacency_list.csv" << std::endl;
-                return;
-            }
-            for (int i = 1; i <= node_count; i++) {
-                data* data_link = adj_list[i];
-                while (data_link->vertex != 0) {
-                    file << i << "," << data_link->vertex << "\n";
-                    file.flush();
-                    data_link = data_link->next;
-                    if (data_link == 0) {
-                        break;
-                    }
-                }
-            }
-            file.close();
-        }
+        //void write_adjacency_list_to_file() {
+            //std::ofstream file("adjacency_list.csv");
+            //if (!file) {
+                //std::cerr << "Failed to open file: adjacency_list.csv" << std::endl;
+                //return;
+            //}
+            //for (int i = 1; i <= node_count; i++) {
+                //data* data_link = adj_list[i];
+                //while (data_link->vertex != 0) {
+                    //file << i << "," << data_link->vertex << "\n";
+                    //file.flush();
+                    //data_link = data_link->next;
+                    //if (data_link == 0) {
+                        //break;
+                    //}
+                //}
+            //}
+            //file.close();
+        //}
 
         void print_traversal_order(const std::string& method) {
             std::cout << method << " Traversal Order: ";
             for (int node : traversal_order) {
                 std::cout << node << " ";
             }
-            std::cout << "\n";
+            std::cout << "\n\n";
         }
 
         void write_edges_to_file(const std::string &filename) {
